@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Guardian::class);
     }
+
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class);
+    }
 }

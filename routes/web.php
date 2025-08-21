@@ -13,6 +13,8 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Guardian\DashboardController as GuardianDashboardController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Tasmee3Controller;
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -67,4 +69,11 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:guardian'])->prefix('guardian')->name('guardian.')->group(function () {
     Route::get('dashboard', [GuardianDashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::middleware('auth')->prefix('messages')->name('messages.')->group(function () {
+    Route::get('/', [ConversationController::class, 'index'])->name('index');
+    Route::post('/', [ConversationController::class, 'store'])->name('store'); // To create a new conversation
+    Route::get('{conversation}', [ConversationController::class, 'show'])->name('show');
+    Route::post('{conversation}', [MessageController::class, 'store'])->name('reply.store'); // To reply to an existing conversation
 });
