@@ -5,25 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Guardian;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class GuardianStudentController extends Controller
 {
-    public function edit(Guardian $guardian)
+    public function create()
     {
-        $students = Student::all();
-        $linkedStudentIds = $guardian->students()->pluck('students.id')->toArray();
+        $guardians = Guardian::with('user')->get();
+        $students = Student::with('user')->get();
 
-        return view('admin.guardians.students.edit', compact('guardian', 'students', 'linkedStudentIds'));
+        return Inertia::render('Admin/GuardianStudent/Create', [
+            'guardians' => $guardians,
+            'students' => $students,
+        ]);
     }
 
-    public function update(Request $request, Guardian $guardian)
+    public function store(Request $request)
     {
         $request->validate([
-            'students' => ['array'],
-            'students.*' => ['exists:students,id'],
+            'guardian_id' => ['required', 'exists:guardians,id'],
+            'student_ids' => ['required', 'array'],
+            'student_ids.*' => ['exists:students,id'],
         ]);
 
-        $guardian->students()->sync($request->input('students', []));
+        $guardian = Guardian::find($request->guardian_id);
+        $guardian->students()->sync($request->input('student_ids', []));
 
         return redirect()->route('admin.users.index')->with('success', 'Guardian-student links updated successfully.');
     }

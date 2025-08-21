@@ -9,6 +9,7 @@ use App\Models\Guardian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class UserManagementController extends Controller
 {
@@ -18,7 +19,9 @@ class UserManagementController extends Controller
     public function index()
     {
         $users = User::with(['teacher', 'student', 'guardian'])->latest()->paginate(15);
-        return view('admin.users.index', compact('users'));
+        return Inertia::render('Admin/User/Index', [
+            'users' => $users,
+        ]);
     }
 
     /**
@@ -26,7 +29,7 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        return Inertia::render('Admin/User/Create');
     }
 
     /**
@@ -37,8 +40,8 @@ class UserManagementController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', 'in:admin,teacher,student,parent'],
+            'password' => ['required', 'string', 'min:8'],
+            'role' => ['required', 'string', 'in:admin,teacher,student,guardian'],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -56,7 +59,7 @@ class UserManagementController extends Controller
                 case 'student':
                     $user->student()->create([]);
                     break;
-                case 'parent':
+                case 'guardian':
                     $user->guardian()->create([]);
                     break;
             }

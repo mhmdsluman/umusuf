@@ -35,4 +35,14 @@ class Student extends Model
     {
         return $this->belongsToMany(Guardian::class, 'guardian_student');
     }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function tasmee3()
+    {
+        return $this->hasMany(Tasmee3::class);
+    }
 }
